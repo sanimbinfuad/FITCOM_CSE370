@@ -67,7 +67,7 @@
             <table class="admin-table">
                 <thead>
                 <tr>
-                    <th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th>
+                    <th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Status</th>
                 </tr>
                 </thead>
 
@@ -79,11 +79,6 @@
                         <td><%= user.email %></td>
                         <td><%= user.user_type %></td>
                         <td><%= user.status %></td>
-                        <td>
-                            <a class="btn-accent" href="/admin/user/<%= user.userID %>">
-                                View
-                            </a>
-                        </td>
                     </tr>
                 <% }) %>
                 </tbody>
