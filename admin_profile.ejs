@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile — Admin</title>
+    <link rel="stylesheet" href="/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="dash-body">
+<div class="dash-wrapper">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <span class="logo-text">ADMIN</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/admin" class="nav-item">
+                <span class="nav-icon">🛡️</span> Dashboard
+            </a>
+            <a href="/admin#users" class="nav-item active">
+                <span class="nav-icon">👥</span> Users
+            </a>
+            <a href="/admin#posts" class="nav-item">
+                <span class="nav-icon">📝</span> Posts
+            </a>
+            <a href="/admin#reports" class="nav-item">
+                <span class="nav-icon">🚨</span> Reports
+            </a>
+        </nav>
+        <a href="/logout" class="sidebar-logout">⬅ Logout</a>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="dash-main">
+
+        <!-- BACK BUTTON -->
+        <a href="/admin" style="color:#5a5f75; font-size:0.875rem; text-decoration:none; display:inline-flex; align-items:center; gap:6px; margin-bottom:20px;">
+            ← Back to Admin
+        </a>
+
+        <!-- PROFILE HEADER -->
+        <div class="dash-card" style="margin-bottom: 20px;">
+            <div style="display:flex; align-items:center; gap:20px; margin-bottom:20px;">
+                <div class="post-avatar" style="width:56px; height:56px; font-size:1.4rem;">
+                    <%= profile.name.charAt(0).toUpperCase() %>
+                </div>
+                <div>
+                    <div class="dash-welcome" style="font-size:1.3rem;"><%= profile.name %></div>
+                    <div class="dash-subtext"><%= profile.email %></div>
+                </div>
+                <div style="margin-left:auto; display:flex; gap:10px; align-items:center;">
+                    <span class="badge <%= profile.user_type === 'admin' ? 'badge-admin' : 'badge-user' %>">
+                        <%= profile.user_type %>
+                    </span>
+                    <span class="badge <%= profile.status === 'active' ? 'badge-active' : 'badge-banned' %>">
+                        <%= profile.status %>
+                    </span>
+                </div>
+            </div>
+
+            <!-- REPORT FORM -->
+            <div style="border-top: 1px solid #2a2d3a; padding-top:18px;">
+                <div class="card-title" style="margin-bottom:12px;">🚨 Submit a Report</div>
+                <form action="/admin/report" method="POST" style="display:flex; flex-direction:column; gap:10px;">
+                    <input type="hidden" name="reportedUserID" value="<%= profile.userID %>" />
+                    <textarea
+                        name="reason"
+                        rows="3"
+                        placeholder="Describe the reason for reporting this account..."
+                        style="width:100%; background:#0f1117; border:1px solid #2a2d3a; border-radius:8px; color:#f0f2f8; padding:11px 14px; font-family:'Inter',sans-serif; font-size:0.875rem; resize:none; outline:none;"
+                        required
+                    ></textarea>
+                    <div>
+                        <button type="submit" class="btn-accent">Submit Report</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- USER POSTS -->
+        <div class="dash-card">
+            <div class="card-title">📝 Posts by <%= profile.name %></div>
+            <% if (posts.length === 0) { %>
+                <div class="empty-state">This user has no posts yet</div>
+            <% } else { %>
+                <% posts.forEach(post => { %>
+                <div class="post-card">
+                    <div class="post-header">
+                        <div class="post-avatar"><%= profile.name.charAt(0).toUpperCase() %></div>
+                        <div>
+                            <div class="post-author"><%= profile.name %></div>
+                            <div class="post-time"><%= new Date(post.time).toLocaleString() %></div>
+                        </div>
+                    </div>
+                    <div class="post-content"><%= post.content %></div>
+                </div>
+                <% }) %>
+            <% } %>
+        </div>
+
+    </main>
+</div>
+</body>
+</html>

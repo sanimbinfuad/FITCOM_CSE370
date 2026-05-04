@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard — FitCom</title>
+    <link rel="stylesheet" href="/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+
+<body class="dash-body">
+
+<div class="dash-wrapper">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <span>⚡</span>
+            <span class="logo-text">FITCOM</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="/dashboard" class="nav-item active">🏠 Home</a>
+            <a href="/friends" class="nav-item">👥 Friends</a>
+            <a href="/activity_log" class="nav-item">📋 Activity Log</a>
+            <a href="/search" class="nav-item">🔍 Search</a>
+            <a href="/goals" class="nav-item">
+                <span class="nav-icon">🎯</span> Goals
+            </a>
+            <a href="/challenge" class="nav-item">
+                <span class="nav-icon">⚡</span> Daily Challenge
+            </a>
+        </nav>
+        <!-- Trainer Request Section -->
+        <div style="padding: 20px; border-top: 1px solid rgba(255,255,255,0.1); margin-top: auto;">
+            <% if (user.userType !== 'trainer' && user.userType !== 'admin') { %>
+                <p style="font-size: 0.8rem; color: #888; margin-bottom: 10px;">Want to help others?</p>
+                <form action="/apply-trainer" method="POST">
+                    <button type="submit" class="btn-accent" style="width: 100%; font-size: 0.8rem;">🏋️ Become Trainer</button>
+                </form>
+            <% } else if (user.userType === 'trainer') { %>
+                <div style="color: #ffd700; font-weight: bold; font-size: 0.9rem; text-align: center;">
+                    ⭐ Certified Trainer
+                    <div style="font-size:0.8rem; color:#c8f135;">
+                        <%= rating %>/5 stars (<%= ratingCount %> ratings)
+                    </div>
+                </div>
+            <% } %>
+        </div>
+
+        
+        <a href="/logout" class="sidebar-logout">🚪 Logout</a>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="dash-main">
+
+        <!-- HEADER -->
+        <div class="dash-header">
+            <div>
+                <h2 class="dash-welcome">Hey, <%= user.name %> 👋</h2>
+                <p class="dash-subtext">Keep pushing. Every rep counts.</p>
+            </div>
+            <br>
+            <a href="/activity_log" class="btn-accent">+ Log Activity</a>
+            <a href="/goals" class="btn-accent">+ Goals</a>
+        </div>
+
+        
+
+        <!-- 🎯 GOALS (DYNAMIC + REMINDER) -->
+        <% if (goals && goals.length > 0) { %>
+        <div class="dash-card">
+            <div class="card-title">🎯 Your Goals</div>
+
+            <% goals.forEach(g => { %>
+                <div class="goal-item">
+
+                    <strong><%= g.title %></strong>
+                    <p><%= g.description %></p>
+                    <small>Due: <%= g.target_date %></small>
+
+                    <% 
+                        const diff = new Date(g.target_date) - new Date();
+                        const threeDays = 3 * 24 * 60 * 60 * 1000;
+                    %>
+
+                    <% if (diff < threeDays) { %>
+                        <span style="color:red; font-weight:bold;">
+                            ⚠ Due Soon
+                        </span>
+                    <% } %>
+
+                </div>
+            <% }) %>
+
+        </div>
+        <% } %>
+        <br>
+
+        <!-- 🔔 NOTIFICATIONS -->
+        <% if (notifications && notifications.length > 0) { %>
+        <div class="dash-card">
+            <div class="card-title">🔔 Notifications</div>
+
+            <% notifications.forEach(n => { %>
+                <div class="notif-item">
+
+                    <span class="notif-text"><%= n.message %></span>
+
+                    <form action="/notification/delete" method="POST" class="notif-close-form">
+                        <input type="hidden" name="id" value="<%= n.notificationID %>">
+                        <button type="submit" class="notif-close">×</button>
+                    </form>
+
+                </div>
+            <% }) %>
+
+        </div>
+        <% } %>
+        <br>
+        <!-- STATS -->
+        <div class="stats-row">
+            <div class="stat-card">🔥 0<br><span>Day Streak</span></div>
+            <div class="stat-card">🏅 0<br><span>Badges</span></div>
+            <div class="stat-card">💪 <%= workoutCount %><br><span>Workouts</span></div>
+            <div class="stat-card">👥 <%= friendCount %><br><span>Friends</span></div>
+        </div>
+
+        <div class="dash-grid">
+
+            <!-- LEFT -->
+            <div class="dash-col">
+
+                <div class="dash-card">
+                    <div class="card-title">🏆 Daily Challenge</div>
+                    <p>Earn Your Badge</p>
+                    <br>
+                    <a href="/challenge" class="btn-accent">+ Challenges</a>
+                </div>
+
+                <div class="dash-card">
+                    <div class="card-title">💡 Tip</div>
+                    <p>Consistency beats perfection.</p>
+                </div>
+
+            </div>
+
+            <!-- RIGHT -->
+            <div class="dash-col">
+
+                <div class="dash-card">
+                    <div class="card-title">📝 Share</div>
+                    <form action="/post" method="POST" class="post-form">
+                        <textarea name="content" placeholder="Share something..." required></textarea>
+                        <button type="submit" class="btn-accent">Post</button>
+                    </form>
+                </div>
+
+                <div class="card-title">🌍 Feed</div>
+
+                <% if (posts.length === 0) { %>
+                    <div class="empty-state">No posts yet</div>
+                <% } %>
+
+                <% posts.forEach(p => { %>
+                    <div class="post-card">
+
+                        <div class="post-header">
+                            <div class="post-avatar"><%= p.name[0].toUpperCase() %></div>
+                            <div>
+                                <div class="post-author"><%= p.name %></div>
+                                <div class="post-time"><%= new Date(p.time).toLocaleString() %></div>
+                            </div>
+                        </div>
+
+                        <p class="post-content"><%= p.content %></p>
+
+                        <div class="post-actions">
+
+                            <form action="/like/<%= p.p_id %>" method="POST">
+                                <button class="btn-like <%= likedPosts.includes(p.p_id) ? 'liked' : '' %>">
+                                    <%= likedPosts.includes(p.p_id) ? '💔 Unlike' : '👍 Like' %>
+                                </button>
+                            </form>
+
+                            <span class="like-count">❤️ <%= p.like_count %></span>
+
+                            <button class="report-toggle" data-id="<%= p.p_id %>">
+                                🚩 Report
+                            </button>
+
+                        </div>
+
+                        <form action="/report-post" method="POST" class="report-form" id="report-<%= p.p_id %>">
+                            <input type="hidden" name="postID" value="<%= p.p_id %>">
+                            <input type="text" name="reason" placeholder="Why are you reporting this?" required>
+                            <button type="submit">Submit</button>
+                        </form>
+
+                    </div>
+                <% }) %>
+
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script>
+document.querySelectorAll(".report-toggle").forEach(btn => {
+    btn.addEventListener("click", () => {
+        const id = btn.dataset.id;
+        document.getElementById("report-" + id).classList.toggle("active");
+    });
+});
+</script>
+
+</body>
+</html>
